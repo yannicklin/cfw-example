@@ -60,18 +60,18 @@ stages:
         parameters:
           env: dev
           description: DEV deploy
-          routes: '"dev.comparethemarket.com.au/*" "website.dev.comparethemarket.com.au/*"'
-          webCtmRoutes: '"nxi.secure.comparethemarket.com.au/*" "nxs.secure.comparethemarket.com.au/*"'
+          routes: '"dev.xxx.xxx.xxx/*" "website.dev.xxx.xxx.xxx/*"'
+          webCtmRoutes: '"nxi.secure.xxx.xxx.xxx/*" "nxs.secure.xxx.xxx.xxx/*"'
           deployment: dev
-          whiteLabelRoutes: '"dev.app.choosi.com.au/*" "life-unstable.comparethemarket.com.au/*" "dev.compare.iselect.com.au/*"'
+          whiteLabelRoutes: '"dev.app.choosi.com.au/*" "life-unstable.xxx.xxx.xxx/*" "dev.compare.iselect.com.au/*"'
 
   - ${{ if or(eq(variables.is_main, 'true'), eq(variables.is_pr, 'true')) }}:
       - template: ./release-base.yaml
         parameters:
           env: uat
           description: UAT deploy
-          routes: '"uat.comparethemarket.com.au/*" "stg.comparethemarket.com.au/*" "website.stg.comparethemarket.com.au/*"'
-          webCtmRoutes: '"nxq.secure.comparethemarket.com.au/*"'
+          routes: '"uat.xxx.xxx.xxx/*" "stg.xxx.xxx.xxx/*" "website.stg.xxx.xxx.xxx/*"'
+          webCtmRoutes: '"nxq.secure.xxx.xxx.xxx/*"'
           deployment: uat
           whiteLabelRoutes: '"stg.compare.iselect.com.au/*" "stg.app.choosi.com.au/*"'
 
@@ -80,7 +80,7 @@ stages:
         parameters:
           env: prod
           description: PROD deploy
-          routes: '"www.comparethemarket.com.au/*" "website.comparethemarket.com.au/*" "ssgtm.comparethemarket.com.au/*"'
-          webCtmRoutes: '"secure.comparethemarket.com.au/*" "prelive.secure.comparethemarket.com.au/*"'
+          routes: '"www.xxx.xxx.xxx/*" "website.xxx.xxx.xxx/*" "ssgtm.xxx.xxx.xxx/*"'
+          webCtmRoutes: '"secure.xxx.xxx.xxx/*" "prelive.secure.xxx.xxx.xxx/*"'
           deployment: prod
-          whiteLabelRoutes: '"life.comparethemarket.com.au/*" "business.comparethemarket.com.au/*" "app.choosi.com.au/*" "compare.iselect.com.au/*"'
+          whiteLabelRoutes: '"life.xxx.xxx.xxx/*" "business.xxx.xxx.xxx/*" "app.choosi.com.au/*" "compare.iselect.com.au/*"'

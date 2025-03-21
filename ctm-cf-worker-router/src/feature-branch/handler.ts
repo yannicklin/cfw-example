@@ -118,9 +118,9 @@ export async function handleFeatureBranchRequest(request: Request, env: Environm
       // this is a request to the dev worker, called directly from the feature branch - send redirect back to client, to call using feature branch subdomain
       const redirectUrl: URL = new URL(reqUrl.toString());
       if (redirectUrl.host.includes(".secure")) {
-        redirectUrl.host = (featureTag === "" ? "nxi" : featureTag) + ".secure.comparethemarket.com.au";
+        redirectUrl.host = (featureTag === "" ? "nxi" : featureTag) + ".secure.xxx.xxx.xxx";
       } else {
-        redirectUrl.host = (featureTag === "" ? "" : featureTag + ".") + "dev.comparethemarket.com.au";
+        redirectUrl.host = (featureTag === "" ? "" : featureTag + ".") + "dev.xxx.xxx.xxx";
       }
       const response: Response = new Response(null, { status: 307 });
       response.headers.append("Location", redirectUrl.toString());
@@ -136,7 +136,7 @@ export async function handleFeatureBranchRequest(request: Request, env: Environm
       for (const route of Config.featureBranchConfig.securedEverestRoutes) {
         if (reqUrl.pathname.includes(route)) {
           // get auth token
-          const authReq: Request = new Request("https://dev.comparethemarket.com.au/api/account/token/anonymous/ctm", { method: "GET" });
+          const authReq: Request = new Request("https://dev.xxx.xxx.xxx/api/account/token/anonymous/ctm", { method: "GET" });
           const authRes: Response = await fetch(authReq);
           const data = await authRes.json();
           // @ts-ignore
@@ -179,7 +179,7 @@ export function handleFeatureBranchResponse(featureConfig: FeatureBranchSettings
 
     // if feature branch, and hasFeatureCookie is missing, set feature tag cookie
     if (!featureConfig.hasFeatureCookie) {
-      const cookieVal: string = Config.featureBranchConfig.featureCookieName + "=" + featureConfig.featureTag + "; Domain=comparethemarket.com.au; Path=/; Secure; SameSite=None;";
+      const cookieVal: string = Config.featureBranchConfig.featureCookieName + "=" + featureConfig.featureTag + "; Domain=xxx.xxx.xxx; Path=/; Secure; SameSite=None;";
       newRes.headers.append("Set-Cookie", cookieVal);
     }
 

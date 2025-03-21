@@ -3,7 +3,7 @@ import { PreRequestRouterObject } from "../lib/router/router";
 
 const webCtmReRoute = async (data: PreRequestRouterObject): Promise<Request> => {
   let url: URL = new URL(data.middlewareData.request.url);
-  url.hostname = "nxi.secure.comparethemarket.com.au";
+  url.hostname = "nxi.secure.xxx.xxx.xxx";
   url.protocol = "https";
   url.port = "";
   // strip trailing slash from path
@@ -25,7 +25,7 @@ export function getLocalRequestMiddleware(requestMiddleware: RequestMiddlewareRe
         let url: URL = new URL(data.middlewareData.request.url);
         // redirect localhost traffic to dev
         if (url.hostname === "localhost") {
-          url.hostname = "dev.comparethemarket.com.au";
+          url.hostname = "dev.xxx.xxx.xxx";
           url.protocol = "https";
           url.port = "";
         }

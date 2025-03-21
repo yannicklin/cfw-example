@@ -13,7 +13,7 @@ export function makeSetCookieHeader(cookieName: string, cookieValue: string, htt
   if (localTesting === "true") {
     postfix += "; Domain=localhost;";
   } else {
-    postfix += domain === "" ? "; Domain=comparethemarket.com.au;" : "; Domain=" + domain + ";";
+    postfix += domain === "" ? "; Domain=xxx.xxx.xxx;" : "; Domain=" + domain + ";";
   }
   let cookie = cookieName + "=" + cookieValue + "; path=/; Secure; SameSite=Strict";
   if (maxAge !== "") {

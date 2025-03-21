@@ -66,7 +66,7 @@ export async function MonsterCookieResponseFix(data: MiddlewareData): Promise<Re
     const matchPattern: boolean = cookieBlockPattern.test(cookieName);
     if (inBlockList || matchPattern) {
       console.log("MonsterCookieResponseFix: disallowed cookie will be deleted from the client. name: " + cookieName);
-      const newCookie: string = cookieName + "= ; Domain=comparethemarket.com.au; Path=/; expires = Thu, 01 Jan 1970 00:00:00 GMT;";
+      const newCookie: string = cookieName + "= ; Domain=xxx.xxx.xxx; Path=/; expires = Thu, 01 Jan 1970 00:00:00 GMT;";
       newRes.headers.append("Set-Cookie", newCookie);
     }
   });

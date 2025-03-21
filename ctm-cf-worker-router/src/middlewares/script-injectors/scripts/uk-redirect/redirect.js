@@ -3,7 +3,7 @@ import {getFunction, getFunctionBody, replaceVars} from "ctm-cf-worker-router-co
 export const noUKRedirectKey = "X-NO-UK-Redirect";
 
 function confirmRedirect() {
-    const ukRedirectUrl = "//www.comparethemarket.com/";
+    const ukRedirectUrl = "//www.xxx.xxx.xxx/";
     const ukModalElem = document.getElementById("$MODAL_ID");
     const btnReturnToUK = ukModalElem.querySelector("button.return-to-uk");
 

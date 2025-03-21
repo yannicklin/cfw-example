@@ -17,7 +17,7 @@ export function generateGuid() {
 // Choosi are not considered here as we do not have access to their CMS to either set all the necessary Martech values or pass them in a hijacked CTA ahref
 export function getDomain() {
   const hostname = window.location.hostname;
-  const ctmDomain = 'comparethemarket.com.au';
+  const ctmDomain = 'xxx.xxx.xxx';
   const isltDomain = 'compare.iselect.com.au';
   if (hostname.includes(ctmDomain)) {
     return ctmDomain;

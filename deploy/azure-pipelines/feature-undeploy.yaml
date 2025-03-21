@@ -82,7 +82,7 @@ stages:
               targetType: "inline"
               script: |
                 set -e;
-                dnsName=cf-feat-$FEATURE_TAG.dev.comparethemarket.com.au;
+                dnsName=cf-feat-$FEATURE_TAG.dev.xxx.xxx.xxx;
                 cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID}"/dns_records?name="${dnsName}";
                 echo "cloudflareUrl is: " ${cloudflareUrl};
                 httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X GET -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN}"'' \
@@ -126,7 +126,7 @@ stages:
               targetType: "inline"
               script: |
                 set -e;
-                dnsName=cf-feat-$FEATURE_TAG.secure.comparethemarket.com.au;
+                dnsName=cf-feat-$FEATURE_TAG.secure.xxx.xxx.xxx;
                 cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID_PROD}"/dns_records?name="${dnsName}";
                 echo "cloudflareUrl is: " ${cloudflareUrl};
                 httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X GET -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN_PROD}"'' \

@@ -549,13 +549,13 @@ const newPageRoutes = newTrancheRoutes.concat(newPPCRoutes);
 
 const baseCfPageRoute: Map<string, string> = new Map([
   ["dev", "dev.ctm-cf-page-enterprise-wordpress.pages.dev"],
-  ["uat", "static.stg.ctm.zone"],
-  ["prod", "static.ctm.zone"],
-  ["pre-prod", "static.pre-prod.ctm.zone"]
+  ["uat", "static.stg.xxx.xxx.xxx"],
+  ["prod", "static.xxx.xxx.xxx"],
+  ["pre-prod", "static.pre-prod.xxx.xxx.xxx"]
 ]);
 
 function getRoute(env: string, hostname: string): string | undefined {
-  if (hostname === "website.comparethemarket.com.au") {
+  if (hostname === "website.xxx.xxx.xxx") {
     return baseCfPageRoute.get("prod");
   }
   return baseCfPageRoute.get(env);
@@ -625,7 +625,7 @@ export function getWordpressRequestMiddleware(
       ]);
     }
 
-    // to allow the Content Team to access legacy wordpress preview functionality ie www.comparethemarket.com.au?page_id=111&preview=true,
+    // to allow the Content Team to access legacy wordpress preview functionality ie www.xxx.xxx.xxx?page_id=111&preview=true,
     // we only route the base route to CF pages, if it is not a preview request
     if (!isLegacyWordPressPreview) {
       requestMids.push([

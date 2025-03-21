@@ -73,15 +73,15 @@ The release pipeline uses the wrangler [cli](https://developers.cloudflare.com/w
 to Cloudflare.
 Three separate deploys occur with each release deployment:
 
-1. Worker and *.dev.comparethemarket.com.au routes deploy
-2. Worker and *.secure.comparethemarket.com.au routes deploy
+1. Worker and *.dev.xxx.xxx.xxx routes deploy
+2. Worker and *.secure.xxx.xxx.xxx routes deploy
 3. Worker secrets deploy
 
 This worker is designed to listen on various routes in different cloudflare zones eg:
 
-* dev.comparethemarket.com.au/* - DEV zone
-* nxi.secure.comparethemarket.com.au/* - PROD zone
-* nxs.secure.comparethemarket.com.au/* - PROD zone
+* dev.xxx.xxx.xxx/* - DEV zone
+* nxi.secure.xxx.xxx.xxx/* - PROD zone
+* nxs.secure.xxx.xxx.xxx/* - PROD zone
 
 For security reasons, devops does not want a single cloudflare api token that has access to both dev and prod zones,
 therefore, two deployments take place, to deploy the worker on different routes in different zones using different api
@@ -97,8 +97,8 @@ These api tokens and worker secrets are stored as azure devops secrets and retri
   `refs/head/feature/ado-{{TICKET-NUMBER}}-some-stuff`
 * The ADO ticket number is used as the feature tag for the feature worker
 * feature branches are created as a separate worker (different name) that listens on a custom subdomain in dev ie
-    * `cf-feat-{{TICKET-NUMBER}}.dev.comparethemarket.com.au`
-    * `cf-feat-{{TICKET-NUMBER}}.secure.comparethemarket.com.au`
+    * `cf-feat-{{TICKET-NUMBER}}.dev.xxx.xxx.xxx`
+    * `cf-feat-{{TICKET-NUMBER}}.secure.xxx.xxx.xxx`
 * these routes are made accessible via custom DNS records created as part of the build
 * refer to the final deploy step, `Feature Worker Routes`, in the `FEATURE deploy` stage, to identify what routes the
   feature worker is listening on
@@ -134,8 +134,8 @@ These api tokens and worker secrets are stored as azure devops secrets and retri
 * This has largely been mitigated through the use of Cloudflare Page Transform rules, in which an `Origin` header is
   injected into the request, to satisfy upstream services, on both `OPTIONS` and `POST` requests. Refer to transform
   rule `CF Worker router feature branch (CORS : ADO-27148)` in request and response header modification tabs
-* Bear in mind that these rules exists in both the `dev.comparethemarket.com.au` and `comparethemarket.com.au` CF
-  zones (to manage health routes on *.secure.comparethemarket.com.au)
+* Bear in mind that these rules exists in both the `dev.xxx.xxx.xxx` and `xxx.xxx.xxx` CF
+  zones (to manage health routes on *.secure.xxx.xxx.xxx)
 * Other factors to consider, when debugging CORS issues are CF WAF rules and CF Zero Trust - network failures in the
   browser, should be curled, to interrogate the response and identify possible interference by Cloudflare
 

@@ -16,7 +16,7 @@ export async function DeleteLongGaCookie(data: MiddlewareData) : Promise< Respon
     if(segmentLength > 21) {
         console.log("deleting ga cookie");
         //Set cookie to empty
-        const newCookie = "_ga= ; Domain=comparethemarket.com.au; Path=/; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+        const newCookie = "_ga= ; Domain=xxx.xxx.xxx; Path=/; expires = Thu, 01 Jan 1970 00:00:00 GMT";
         newRes.headers.append("Set-Cookie", newCookie);
     }
     return newRes;

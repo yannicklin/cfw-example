@@ -5,10 +5,10 @@ compatibility_flags = ["nodejs_compat"]
 logpush = true
 
 [vars]
-CTM_HOSTNAME = "dev.comparethemarket.com.au"
+CTM_HOSTNAME = "dev.xxx.xxx.xxx"
 ISELECT_HOSTNAME = "dev.compare.iselect.com.au"
 CHOOSI_HOSTNAME = "dev.app.choosi.com.au"
-LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+LIFE_HOSTNAME = "life-unstable.xxx.xxx.xxx"
 ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
 TESTING = true
 CF_PAGE_PREFIX = "dev."
@@ -23,10 +23,10 @@ port = 8787
 [env.dev]
 
 [env.dev.vars]
-CTM_HOSTNAME = "dev.comparethemarket.com.au"
+CTM_HOSTNAME = "dev.xxx.xxx.xxx"
 ISELECT_HOSTNAME = "dev.compare.iselect.com.au"
 CHOOSI_HOSTNAME = "dev.app.choosi.com.au"
-LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+LIFE_HOSTNAME = "life-unstable.xxx.xxx.xxx"
 ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
 TESTING = false
 CF_PAGE_PREFIX = "dev."
@@ -38,10 +38,10 @@ ENV = "dev"
 [env.uat]
 
 [env.uat.vars]
-CTM_HOSTNAME = "uat.comparethemarket.com.au"
+CTM_HOSTNAME = "uat.xxx.xxx.xxx"
 ISELECT_HOSTNAME = "stg.compare.iselect.com.au"
 CHOOSI_HOSTNAME = "stg.app.choosi.com.au"
-LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+LIFE_HOSTNAME = "life-unstable.xxx.xxx.xxx"
 ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
 TESTING = false
 CF_PAGE_PREFIX = "uat."
@@ -53,10 +53,10 @@ ENV = "uat"
 [env.prod]
 
 [env.prod.vars]
-CTM_HOSTNAME = "www.comparethemarket.com.au"
+CTM_HOSTNAME = "www.xxx.xxx.xxx"
 ISELECT_HOSTNAME = "compare.iselect.com.au"
 CHOOSI_HOSTNAME = "app.choosi.com.au"
-LIFE_HOSTNAME = "life.comparethemarket.com.au"
+LIFE_HOSTNAME = "life.xxx.xxx.xxx"
 ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/F4E93EA5-4EC3-441D-9B46-C016042ADC3C/api.js"
 TESTING = false
 CF_PAGE_PREFIX = ""

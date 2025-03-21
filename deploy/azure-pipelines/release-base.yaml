@@ -6,13 +6,13 @@ parameters:
     type: string
   - name: routes
     type: string
-    displayName: "Routes on the *.comparethemarket.com.au sub-domains"
+    displayName: "Routes on the *.xxx.xxx.xxx sub-domains"
   - name: webCtmRoutes
     type: string
-    displayName: "Routes on the *.secure.comparethemarket.com.au sub-domains"
+    displayName: "Routes on the *.secure.xxx.xxx.xxx sub-domains"
   - name: whiteLabelRoutes
     type: string
-    displayName: "Routes on the life and busines.comparethemarket.com.au sub-domains and choosi sub-domain"
+    displayName: "Routes on the life and busines.xxx.xxx.xxx sub-domains and choosi sub-domain"
   - name: deployment
     type: string
 
@@ -60,14 +60,14 @@ stages:
                     targetType: "inline"
                     script: |
                       $tag = [regex]::Match('$(BRANCH_NAME)', '\d+').Value
-                      $routes = [string]::Format('"cf-feat-{0}.dev.comparethemarket.com.au/*"', $tag)
-                      $webCtmRoutes = [string]::Format('"cf-feat-{0}.secure.comparethemarket.com.au/*"', $tag)
+                      $routes = [string]::Format('"cf-feat-{0}.dev.xxx.xxx.xxx/*"', $tag)
+                      $webCtmRoutes = [string]::Format('"cf-feat-{0}.secure.xxx.xxx.xxx/*"', $tag)
                       Write-Host "##vso[task.setvariable variable=FEATURE_TAG]$tag"
                       Write-Host "##vso[task.setvariable variable=ROUTES]$routes"
                       Write-Host "##vso[task.setvariable variable=WEB_CTM_ROUTES]$webCtmRoutes"
 
                 - task: Bash@3
-                  displayName: "Deploy to *comparethemarket.com.au routes"
+                  displayName: "Deploy to *xxx.xxx.xxx routes"
                   inputs:
                     targetType: "inline"
                     script: |
@@ -87,7 +87,7 @@ stages:
                     DEPLOYMENT: ${{ parameters.deployment }}
 
                 - task: Bash@3
-                  displayName: "Deploy to *secure.comparethemarket.com.au routes"
+                  displayName: "Deploy to *secure.xxx.xxx.xxx routes"
                   inputs:
                     targetType: "inline"
                     script: |
@@ -145,14 +145,14 @@ stages:
                     targetType: "inline"
                     script: |
                       set -e;
-                      dnsName="cf-feat-$(FEATURE_TAG).dev.comparethemarket.com.au";
+                      dnsName="cf-feat-$(FEATURE_TAG).dev.xxx.xxx.xxx";
                       cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID}"/dns_records;
                       echo "cloudflareUrl is: " ${cloudflareUrl};
                       httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X POST -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN}"'' -H 'Content-Type: application/json' \
                         -d '{
                               "type": "CNAME",
                               "name" : "'"$dnsName"'",
-                              "content" : "dev.comparethemarket.com.au",
+                              "content" : "dev.xxx.xxx.xxx",
                               "proxied" : true,
                               "ttl" : 3600
                       }' "${cloudflareUrl}");
@@ -179,14 +179,14 @@ stages:
                     targetType: "inline"
                     script: |
                       set -e;
-                      dnsName="cf-feat-$(FEATURE_TAG).secure.comparethemarket.com.au";
+                      dnsName="cf-feat-$(FEATURE_TAG).secure.xxx.xxx.xxx";
                       cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID_PROD}"/dns_records;
                       echo "cloudflareUrl is: " ${cloudflareUrl};
                       httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X POST -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN_PROD}"'' -H 'Content-Type: application/json' \
                         -d '{
                               "type": "CNAME",
                               "name" : "'"$dnsName"'",
-                              "content" : "nxi.secure.comparethemarket.com.au",
+                              "content" : "nxi.secure.xxx.xxx.xxx",
                               "proxied" : true,
                               "ttl" : 3600
                       }' "${cloudflareUrl}");

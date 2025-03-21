@@ -6,7 +6,7 @@ import { makeSetCookieHeader } from "./cookieJar";
 export const callCentreCookieName = "isSimplesUser";
 // the web ctm hostname
 // the web ctm hostname
-const webCtmHost = ".comparethemarket.com.au";
+const webCtmHost = ".xxx.xxx.xxx";
 
 // adds or removes the call centre cookie on the client
 export async function SimplesCookieManager(data: MiddlewareData) {

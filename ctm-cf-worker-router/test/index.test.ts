@@ -342,7 +342,7 @@ describe("Worker", async () => {
   // verify CTM's GTM script for white labels is injected
   it("should return injected GTM script in Life journey", async () => {
     // @ts-ignore
-    const request = new IncomingRequest("https://life.comparethemarket.com.au");
+    const request = new IncomingRequest("https://life.xxx.xxx.xxx");
     // @ts-ignore
     const resp = await worker.fetch(request, env, ctx);
     await waitOnExecutionContext(ctx);
@@ -366,7 +366,7 @@ describe("Worker", async () => {
     if (resp) {
       expect(resp.status).toBe(200);
       const text: string = await resp.text();
-      expect(text).toContain("https://dev.comparethemarket.com.au/metrics");
+      expect(text).toContain("https://dev.xxx.xxx.xxx/metrics");
       expect(text).toContain(Config.gtmConfig.ctmJourneyGtmKey);
     }
   });

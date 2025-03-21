@@ -6,7 +6,7 @@ import { AttributeRewriter } from "ctm-cf-worker-router-core";
 export type CFPageRouteSettings = {
   //eg: routePrefix=apps/app1 : apps/app1/do-thing-> /do-thing
   routePrefix: string;
-  //The server to redirect to: eg page.dev.comparethemarket.com.au
+  //The server to redirect to: eg page.dev.xxx.xxx.xxx
   destHost: string;
   //Remove the route that we came from from the request to the page
   removeSubRoute: boolean;

@@ -111,7 +111,7 @@ export const Config: Config = {
     // Choosi's journey GTM container ID
     choosiGtmKey: "GTM-TTFV6KJ",
     // the url to retrieve gtm.js from - this is no longer used for CTM, rather opting for the default gtm url
-    ctmGtmUrl: "https://ssgtm.comparethemarket.com.au/gtm.js",
+    ctmGtmUrl: "https://ssgtm.xxx.xxx.xxx/gtm.js",
     // the default url to retrieve gtm.js from - used when server side gtm is not in place
     defaultGtmUrl: "https://www.googletagmanager.com/gtm.js",
     // the proxy path the worker listens on, for requests to retrieve the GTM container

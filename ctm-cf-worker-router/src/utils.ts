@@ -62,14 +62,14 @@ export interface SubdomainInfo {
 }
 
 /*
-  Utility functions to get Subdomain(s) of CTM (comparethemarket.com.au)
+  Utility functions to get Subdomain(s) of CTM (xxx.xxx.xxx)
  */
 export function getCTMSubdomain(hostname: string): SubdomainInfo {
 
   let subdomainInfo: SubdomainInfo = { "count": 0, "lastSub": "", "raw": [] };
 
-  if ("comparethemarket.com.au" !== hostname) {
-    let subdomains: string[] = hostname.replace(".comparethemarket.com.au", "").split(".");
+  if ("xxx.xxx.xxx" !== hostname) {
+    let subdomains: string[] = hostname.replace(".xxx.xxx.xxx", "").split(".");
     subdomainInfo = { "count": subdomains.length, "lastSub": subdomains[0], "raw": subdomains };
   }
 

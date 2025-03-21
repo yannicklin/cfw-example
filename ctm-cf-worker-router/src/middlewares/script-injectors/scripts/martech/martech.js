@@ -65,7 +65,7 @@ export function setSessionId() {
 export function setReferrer() {
   try {
     const REFERRER = 'referrer';
-    const ctmDomain = 'comparethemarket.com.au';
+    const ctmDomain = 'xxx.xxx.xxx';
     const isltDomain = 'compare.iselect.com.au';
     const docRef_sessStore = sessionStorage.getItem(REFERRER);
     if (!docRef_sessStore) {
