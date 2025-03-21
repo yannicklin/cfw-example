@@ -1,0 +1,20 @@
+<head>
+</head>
+
+<body>
+  <h1>This is a test page!</h1>
+  <p>You are seeing this because you are looking at a cloudflare worker in test-mode or because you have the appropriate cookie set </p>
+  <div>
+    <h2>Cookies:</h2>
+    <pre id="cookies">
+  </div>
+    
+    <script>
+      let cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')))
+      document.getElementById('cookies').innerHTML = JSON.stringify(cookies, null, 2)
+    </script>
+
+    <p>
+      <iframe loading="eager" id="Borrowing_Power_Calculator" style="width: 100%; height: 815px;" src="http://localhost:8787/Tools/B3/SuiteA/A200/Borrowing_Power_Calculator/CompareTheMarket" width="100%" height="815" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+    </p>
+</body>

@@ -1,0 +1,55 @@
+name: ctm-cf-worker-router-build
+pool:
+  name: self-hosted-CTM
+trigger: none
+pr:
+  paths:
+    include:
+      - ctm-cf-worker-anonymous-id/**
+      - ctm-cf-worker-router-core/**
+resources:
+  repositories:
+    - repository: self
+      type: git
+      name: self
+    - repository: templates
+      type: git
+      name: CTM/ctm-azure-devops-resources
+
+steps:
+  - checkout: self
+    path: self
+
+  - task: NodeTool@0
+    displayName: "Install Node 16.x"
+    inputs:
+      versionSource: "spec"
+      versionSpec: "18.x"
+      checkLatest: true
+
+  - task: Npm@1
+    continueOnError: true
+
+    displayName: "Install npm8"
+    inputs:
+      command: custom
+      verbose: false
+      customCommand: "i npm@8 -g"
+
+  - task: Npm@1
+    inputs:
+      command: "custom"
+      workingDir: "ctm-cf-worker-router"
+      customCommand: "install"
+
+  - task: Bash@3
+    inputs:
+      targetType: "inline"
+      script: |
+        cd ctm-cf-worker-anonymous-id
+        npm run build
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "./artifact"
+      ArtifactName: "artifact"

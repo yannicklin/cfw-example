@@ -1,0 +1,215 @@
+parameters:
+  - name: env
+    type: string
+    default: dev
+  - name: description
+    type: string
+  - name: routes
+    type: string
+    displayName: "Routes on the *.comparethemarket.com.au sub-domains"
+  - name: webCtmRoutes
+    type: string
+    displayName: "Routes on the *.secure.comparethemarket.com.au sub-domains"
+  - name: whiteLabelRoutes
+    type: string
+    displayName: "Routes on the life and busines.comparethemarket.com.au sub-domains and choosi sub-domain"
+  - name: deployment
+    type: string
+
+stages:
+  - stage: ${{parameters.deployment}}
+    displayName: ${{parameters.description}}
+
+    variables:
+      - group: customer-accounts-cloudflare-${{parameters.env}}
+      - group: ctm-base-${{parameters.env}}
+      - group: cloudflare-worker-router-prod
+      - name: branch_name
+        ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+          value: $[ variables['Build.SourceBranchName'] ]
+        ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+          value: $[ variables['System.PullRequest.SourceBranch'] ]
+
+    jobs:
+      - deployment: deployment
+        environment: enterprise-${{parameters.deployment}}
+        displayName: "Deployment"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+
+                - task: NodeTool@0
+                  displayName: "Install Node 22.x"
+                  inputs:
+                    versionSource: "spec"
+                    versionSpec: "22.x"
+                    checkLatest: true
+
+                - task: Bash@3
+                  displayName: "Install wrangler"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      npm install -g wrangler
+
+                - task: PowerShell@2
+                  displayName: "Obtain worker routes"
+                  condition: eq( '${{parameters.deployment}}', 'feature' )
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      $tag = [regex]::Match('$(BRANCH_NAME)', '\d+').Value
+                      $routes = [string]::Format('"cf-feat-{0}.dev.comparethemarket.com.au/*"', $tag)
+                      $webCtmRoutes = [string]::Format('"cf-feat-{0}.secure.comparethemarket.com.au/*"', $tag)
+                      Write-Host "##vso[task.setvariable variable=FEATURE_TAG]$tag"
+                      Write-Host "##vso[task.setvariable variable=ROUTES]$routes"
+                      Write-Host "##vso[task.setvariable variable=WEB_CTM_ROUTES]$webCtmRoutes"
+
+                - task: Bash@3
+                  displayName: "Deploy to *comparethemarket.com.au routes"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e;
+                      cd $(artifact_path);
+                      if [[ $DEPLOYMENT == 'feature' ]]
+                      then
+                        echo "ROUTES are: " $(ROUTES)
+                        echo "Deploying feature branch..."
+                        wrangler deploy --no-bundle ./out/index.js --routes $(ROUTES) --name cf-worker-router-feat-$(FEATURE_TAG) --var TESTING:false
+                      else
+                        echo "Deploying to" ${{parameters.env}}
+                        wrangler deploy --env ${{parameters.env}} --no-bundle ./out/index.js --routes ${{parameters.routes}}
+                      fi
+                  env:
+                    CLOUDFLARE_API_TOKEN: $(cloudflare.api.token)
+                    DEPLOYMENT: ${{ parameters.deployment }}
+
+                - task: Bash@3
+                  displayName: "Deploy to *secure.comparethemarket.com.au routes"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e;
+                      cd $(artifact_path);
+                      if [[ $DEPLOYMENT == 'feature' ]]
+                      then
+                        echo "WEB_CTM_ROUTES are: " $(WEB_CTM_ROUTES)
+                        echo "Deploying feature branch..."
+                        wrangler deploy --no-bundle ./out/index.js --routes $(WEB_CTM_ROUTES) --name cf-worker-router-feat-$(FEATURE_TAG) --var TESTING:false
+                      else
+                        echo "Deploying to" ${{parameters.env}}
+                        wrangler deploy --env ${{parameters.env}} --no-bundle ./out/index.js --routes ${{parameters.webCtmRoutes}}
+                      fi
+                  env:
+                    CLOUDFLARE_API_TOKEN: $(cloudflare.api.token.prod)
+                    DEPLOYMENT: ${{ parameters.deployment }}
+
+                - task: Bash@3
+                  displayName: "Deploy to white label routes"
+                  condition: ne( '${{parameters.whiteLabelRoutes}}', '' )
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e
+                      cd $(artifact_path)
+                      wrangler deploy --env ${{parameters.env}} --no-bundle ./out/index.js --routes ${{parameters.whiteLabelRoutes}}
+                  env:
+                    CLOUDFLARE_API_TOKEN: $(cloudflare.api.token.prod)
+
+                - task: Bash@3
+                  displayName: "Deploy worker secrets"
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e
+                      cd $(artifact_path)
+                      secrets='{"CF_ACCESS_CLIENT_ID":"$(cloudflare.access.client.id)", "CF_ACCESS_AUTH_TOKEN":"$(cloudflare.access.auth.token)"}';
+                      if [[ $DEPLOYMENT == 'feature' ]]
+                      then
+                        echo "Deploying feature branch..."
+                        echo $secrets | wrangler secret bulk --name cf-worker-router-feat-$(FEATURE_TAG);
+                      else
+                        echo "Deploying to" ${{parameters.env}}
+                        echo $secrets | wrangler secret bulk --name cf-worker-router-${{parameters.env}};
+                      fi
+                  env:
+                    CLOUDFLARE_API_TOKEN: $(cloudflare.api.token)
+                    DEPLOYMENT: ${{ parameters.deployment }}
+
+                - task: Bash@3
+                  displayName: "Create *.comparethemarket DNS record"
+                  condition: eq( '${{parameters.deployment}}', 'feature' )
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e;
+                      dnsName="cf-feat-$(FEATURE_TAG).dev.comparethemarket.com.au";
+                      cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID}"/dns_records;
+                      echo "cloudflareUrl is: " ${cloudflareUrl};
+                      httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X POST -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN}"'' -H 'Content-Type: application/json' \
+                        -d '{
+                              "type": "CNAME",
+                              "name" : "'"$dnsName"'",
+                              "content" : "dev.comparethemarket.com.au",
+                              "proxied" : true,
+                              "ttl" : 3600
+                      }' "${cloudflareUrl}");
+
+                      if [ $httpResponse != "200" ]; then
+                          echo "Response status is: " $httpResponse;
+                          cat response.txt; echo
+                          if  cat response.txt | grep -iqF '"code":81053'; then
+                            echo "DNS record already exists";
+                          else
+                            echo "Failed to create DNS record";
+                            exit 1;
+                          fi
+                      fi
+                  env:
+                    CLOUDFLARE_API_TOKEN: $(cloudflare.api.token)
+                    CLOUDFLARE_API_ENDPOINT: $(cloudflare.api.endpoint)
+                    CLOUDFLARE_ZONE_ID: $(cloudflare.zone.id)
+
+                - task: Bash@3
+                  displayName: "Create *.secure DNS record"
+                  condition: eq( '${{parameters.deployment}}', 'feature' )
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      set -e;
+                      dnsName="cf-feat-$(FEATURE_TAG).secure.comparethemarket.com.au";
+                      cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID_PROD}"/dns_records;
+                      echo "cloudflareUrl is: " ${cloudflareUrl};
+                      httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X POST -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN_PROD}"'' -H 'Content-Type: application/json' \
+                        -d '{
+                              "type": "CNAME",
+                              "name" : "'"$dnsName"'",
+                              "content" : "nxi.secure.comparethemarket.com.au",
+                              "proxied" : true,
+                              "ttl" : 3600
+                      }' "${cloudflareUrl}");
+
+                      if [ $httpResponse != "200" ]; then
+                          echo "Response status is: " $httpResponse;
+                          cat response.txt; echo
+                          if  cat response.txt | grep -iqF '"code":81053'; then
+                            echo "DNS record already exists";
+                          else
+                            echo "Failed to create DNS record";
+                            exit 1;
+                          fi
+                      fi
+                  env:
+                    CLOUDFLARE_API_TOKEN_PROD: $(cloudflare.api.token.prod)
+                    CLOUDFLARE_API_ENDPOINT: $(cloudflare.api.endpoint)
+                    CLOUDFLARE_ZONE_ID_PROD: $(cloudflare.zone.id.prod)
+
+                - script: |
+                    echo "Feature worker listening on the following routes: " 
+                    echo $(ROUTES);
+                    echo $(WEB_CTM_ROUTES);
+                  condition: eq( '${{parameters.deployment}}', 'feature' )
+                  displayName: Feature Worker Routes
+

@@ -1,0 +1,20 @@
+{
+  "name": "ctm-cf-worker-router-core",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "@types/minify": "^9.1.0",
+    "typescript": "^5.0.3"
+  },
+  "dependencies": {}
+}

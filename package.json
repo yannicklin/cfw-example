@@ -1,0 +1,19 @@
+{
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.4.31",
+    "@vitest/coverage-istanbul": "1.5.0",
+    "@vitest/ui": "1.5.0",
+    "vitest": "1.5.0",
+    "wrangler": "3.72.0"
+  },
+  "scripts": {
+    "build-all": "pnpm -r run build",
+    "postinstall": "pnpm run build-all",
+    "start-router": "cd ctm-cf-worker-router && pnpm run start",
+    "start-example": "cd ctm-cf-worker-mw-svc-example && pnpm run start",
+    "start": "pnpm --stream --parallel -r run start",
+    "test-ui": "vitest --ui --watch",
+    "test": "vitest --run --watch false"
+  },
+  "packageManager": "pnpm@9.12.3"
+}

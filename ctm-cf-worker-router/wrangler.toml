@@ -1,0 +1,66 @@
+name = "cf-worker-router"
+main = "src/index.ts"
+compatibility_date = "2023-03-31"
+compatibility_flags = ["nodejs_compat"]
+logpush = true
+
+[vars]
+CTM_HOSTNAME = "dev.comparethemarket.com.au"
+ISELECT_HOSTNAME = "dev.compare.iselect.com.au"
+CHOOSI_HOSTNAME = "dev.app.choosi.com.au"
+LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
+TESTING = true
+CF_PAGE_PREFIX = "dev."
+TRACKING_DATA_RETRY = 30
+ARKOSE_SESSION_TOKEN_EXPIRY_HRS = 24
+ARKOSE_VERIFY_TIMEOUT_SECS = 3
+ENV = "dev"
+
+[dev]
+port = 8787
+
+[env.dev]
+
+[env.dev.vars]
+CTM_HOSTNAME = "dev.comparethemarket.com.au"
+ISELECT_HOSTNAME = "dev.compare.iselect.com.au"
+CHOOSI_HOSTNAME = "dev.app.choosi.com.au"
+LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
+TESTING = false
+CF_PAGE_PREFIX = "dev."
+TRACKING_DATA_RETRY = 30
+ARKOSE_SESSION_TOKEN_EXPIRY_HRS = 24
+ARKOSE_VERIFY_TIMEOUT_SECS = 3
+ENV = "dev"
+
+[env.uat]
+
+[env.uat.vars]
+CTM_HOSTNAME = "uat.comparethemarket.com.au"
+ISELECT_HOSTNAME = "stg.compare.iselect.com.au"
+CHOOSI_HOSTNAME = "stg.app.choosi.com.au"
+LIFE_HOSTNAME = "life-unstable.comparethemarket.com.au"
+ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/1473B451-8EEE-4DF5-8F7A-CBED6F43E5CD/api.js"
+TESTING = false
+CF_PAGE_PREFIX = "uat."
+TRACKING_DATA_RETRY = 30
+ARKOSE_SESSION_TOKEN_EXPIRY_HRS = 24
+ARKOSE_VERIFY_TIMEOUT_SECS = 3
+ENV = "uat"
+
+[env.prod]
+
+[env.prod.vars]
+CTM_HOSTNAME = "www.comparethemarket.com.au"
+ISELECT_HOSTNAME = "compare.iselect.com.au"
+CHOOSI_HOSTNAME = "app.choosi.com.au"
+LIFE_HOSTNAME = "life.comparethemarket.com.au"
+ARKOSE_JS_ENDPOINT = "https://ctm-api.arkoselabs.com/v2/F4E93EA5-4EC3-441D-9B46-C016042ADC3C/api.js"
+TESTING = false
+CF_PAGE_PREFIX = ""
+TRACKING_DATA_RETRY = 30
+ARKOSE_SESSION_TOKEN_EXPIRY_HRS = 24
+ARKOSE_VERIFY_TIMEOUT_SECS = 3
+ENV = "prod"

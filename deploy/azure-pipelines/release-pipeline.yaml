@@ -1,0 +1,86 @@
+name: cf-worker-router-deploy
+trigger: none
+pr: none
+
+parameters:
+  - name: FEATURE_DEV_DEPLOY_OVERRIDE
+    type: boolean
+    default: true
+
+resources:
+  repositories:
+    - repository: self
+      type: git
+      name: self
+
+    - repository: templates
+      type: git
+      name: CTM/ctm-azure-devops-resources
+
+  pipelines:
+    - pipeline: worker-router
+      source: "ctm-cf-worker-router router-build"
+      trigger: true
+
+variables:
+  - name: "tf_version"
+    value: "1.3.7"
+  - name: artifact_path
+    value: "../worker-router/artifact"
+  - name: is_main
+    ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+      value: "true"
+    ${{ else }}:
+      value: "false"
+  - name: is_feature
+    ${{ if contains(variables['Build.SourceBranch'], 'refs/heads/feature') }}:
+      value: "true"
+    ${{ else }}:
+      value: "false"
+  - name: is_pr
+    ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+      value: "true"
+    ${{ else }}:
+      value: "false"
+
+stages:
+
+  - ${{ if or(eq(variables.is_feature, 'true'), eq(variables.is_pr, 'true')) }}:
+      - template: ./release-base.yaml
+        parameters:
+          env: dev
+          description: FEATURE deploy
+          deployment: feature
+          routes: ''
+          webCtmRoutes: ''
+          whiteLabelRoutes: ''
+
+  - ${{ if or(eq(variables.is_main, 'true'), eq(variables.is_pr, 'true'), eq(parameters.FEATURE_DEV_DEPLOY_OVERRIDE, true)) }}:
+      - template: ./release-base.yaml
+        parameters:
+          env: dev
+          description: DEV deploy
+          routes: '"dev.comparethemarket.com.au/*" "website.dev.comparethemarket.com.au/*"'
+          webCtmRoutes: '"nxi.secure.comparethemarket.com.au/*" "nxs.secure.comparethemarket.com.au/*"'
+          deployment: dev
+          whiteLabelRoutes: '"dev.app.choosi.com.au/*" "life-unstable.comparethemarket.com.au/*" "dev.compare.iselect.com.au/*"'
+
+  - ${{ if or(eq(variables.is_main, 'true'), eq(variables.is_pr, 'true')) }}:
+      - template: ./release-base.yaml
+        parameters:
+          env: uat
+          description: UAT deploy
+          routes: '"uat.comparethemarket.com.au/*" "stg.comparethemarket.com.au/*" "website.stg.comparethemarket.com.au/*"'
+          webCtmRoutes: '"nxq.secure.comparethemarket.com.au/*"'
+          deployment: uat
+          whiteLabelRoutes: '"stg.compare.iselect.com.au/*" "stg.app.choosi.com.au/*"'
+
+  - ${{ if or(eq(variables.is_main, 'true'), eq(variables.is_pr, 'true')) }}:
+      - template: ./release-base.yaml
+        parameters:
+          env: prod
+          description: PROD deploy
+          routes: '"www.comparethemarket.com.au/*" "website.comparethemarket.com.au/*" "ssgtm.comparethemarket.com.au/*"'
+          webCtmRoutes: '"secure.comparethemarket.com.au/*" "prelive.secure.comparethemarket.com.au/*"'
+          deployment: prod
+          whiteLabelRoutes: '"life.comparethemarket.com.au/*" "business.comparethemarket.com.au/*" "app.choosi.com.au/*" "compare.iselect.com.au/*"'

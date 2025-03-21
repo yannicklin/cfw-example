@@ -1,0 +1,87 @@
+name: ctm-cf-worker-router-build
+pool:
+  name: self-hosted-CTM
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  paths:
+    include:
+      - ctm-cf-worker-router/**
+      - ctm-cf-worker-router-core/**
+
+resources:
+  repositories:
+    - repository: self
+      type: git
+      name: self
+    - repository: templates
+      type: git
+      name: CTM/ctm-azure-devops-resources
+
+variables:
+  - group: cloudflare-worker-router-prod
+  - name: pnpm_config_cache
+    value: $(Pipeline.Workspace)/.pnpm-store
+
+stages:
+
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job:
+        steps:
+          - checkout: self
+            path: self
+
+          - task: NodeTool@0
+            displayName: "Install Node 22.x"
+            inputs:
+              versionSource: "spec"
+              versionSpec: "22.x"
+              checkLatest: true
+
+          - task: Cache@2
+            inputs:
+              key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
+              path: $(pnpm_config_cache)
+            displayName: Cache pnpm
+
+          - script: |
+              corepack enable
+              corepack prepare pnpm@latest-9 --activate
+              pnpm config set store-dir $(pnpm_config_cache)
+            displayName: "Setup pnpm"
+
+          - script: |
+              # set CF Access creds to allow integration tests to access secured CF pages
+              set -e;
+              export CF_ACCESS_CLIENT_ID=$(cloudflare.access.client.id) CF_ACCESS_AUTH_TOKEN=$(cloudflare.access.auth.token);
+              pnpm install;
+              pnpm test;
+            displayName: "pnpm install, build and test"
+
+          - task: Bash@3
+            displayName: "wrangler build"
+            inputs:
+              targetType: "inline"
+              script: |
+                set -e;
+                cd ctm-cf-worker-router
+                pnpm run build
+                # delete everything we don't need in the final output
+                rm -rf ./node_modules
+
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish artifact"
+            inputs:
+              PathtoPublish: "./ctm-cf-worker-router"
+              ArtifactName: "artifact"
+
+  - ${{ if and(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'IndividualCI')) }}:
+      - template: ./feature-undeploy.yaml
+        parameters:
+          description: FEATURE undeploy

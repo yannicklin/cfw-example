@@ -1,0 +1,167 @@
+parameters:
+  - name: env
+    type: string
+    default: dev
+  - name: description
+    type: string
+
+stages:
+  - stage:
+    displayName: ${{parameters.description}}
+
+    variables:
+      - group: customer-accounts-cloudflare-${{parameters.env}}
+      - group: ctm-base-${{parameters.env}}
+      - group: cloudflare-worker-router-prod
+
+    jobs:
+      - job:
+        displayName: "Undeploy Feature Branch"
+        steps:
+
+          - task: NodeTool@0
+            displayName: "Install Node 22.x"
+            inputs:
+              versionSource: "spec"
+              versionSpec: "22.x"
+              checkLatest: true
+
+          - task: Bash@3
+            displayName: "Install wrangler"
+            inputs:
+              targetType: "inline"
+              script: |
+                npm install -g wrangler
+
+          - task: Bash@3
+            displayName: "Install jq"
+            inputs:
+              targetType: "inline"
+              script: |
+                sudo apt install -y jq
+
+          - powershell: |
+              $url = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_apis/git/repositories/$(Build.Repository.ID)/pullrequests?searchCriteria.targetRefName=refs/heads/main&searchCriteria.status=completed&'$top=1&api-version=5.1"
+              $result = Invoke-RestMethod -Uri $url -Headers @{authorization = "Bearer $env:SYSTEM_ACCESS_TOKEN"} -Method get
+              $branch = $result.value[0].sourceRefName;
+              echo "Branch is: "$branch;
+              $tag = [regex]::Match($branch, '\d+').Value
+              echo "##vso[task.setvariable variable=FEATURE_TAG]$tag"
+            displayName: 'Set feature tag'
+            env:
+              SYSTEM_ACCESS_TOKEN: $(System.AccessToken)
+
+          - script: |
+              echo "FEATURE_TAG is: $FEATURE_TAG"
+              echo "Deleting feature worker: cf-worker-router-feat-${FEATURE_TAG}"
+              response=$(wrangler delete --name "cf-worker-router-feat-${FEATURE_TAG}" 2>&1)
+              result=$?;
+              echo "Command exit code is $result";
+              error="ERROR"
+              searchStr="workers.api.error.script_not_found [code: 10007]";
+              
+              if [[ "$result" -ne 0 || "$response" == *"$error"*  ]]; then
+                if [[ "$response" == *"$searchStr"*  ]]; then
+                  echo "Worker does not exist - nothing to delete";
+                else
+                  echo "Failed to delete worker";
+                  echo $response;
+                  exit 1;
+                fi
+              else
+                echo "Worker successfully deleted";
+              fi
+            displayName: 'Delete feature worker'
+            env:
+              CLOUDFLARE_API_TOKEN: $(cloudflare.api.token)
+              CLOUDFLARE_ACCOUNT_ID: $(cloudflare.account.id)
+
+          - task: Bash@3
+            displayName: "Delete *.comparethemarket DNS record"
+            inputs:
+              targetType: "inline"
+              script: |
+                set -e;
+                dnsName=cf-feat-$FEATURE_TAG.dev.comparethemarket.com.au;
+                cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID}"/dns_records?name="${dnsName}";
+                echo "cloudflareUrl is: " ${cloudflareUrl};
+                httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X GET -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN}"'' \
+                "${cloudflareUrl}")
+                
+                if [ $httpResponse != "200" ]; then
+                  cat response.txt; echo
+                  echo "Response status is: " $httpResponse ". Failed to retrieve DNS record:" $dnsName;
+                  exit 1;
+                else
+                  cat response.txt; echo
+                  resultCount=$(cat response.txt | jq -r '.result_info.count');
+                  if [[ $resultCount -eq "0" ]]; then
+                    echo "No DNS record found to delete";
+                    exit 0;
+                  fi
+                    dnsId=$(cat response.txt | jq -r '.result[0].id');
+                    echo $dnsId;
+                fi
+                
+                cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID}"/dns_records/"${dnsId}";
+                httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X DELETE -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN}"'' \
+                ${cloudflareUrl})
+                
+                if [ $httpResponse != "200" ]; then
+                  cat response.txt; echo
+                  echo "Response status is: " $httpResponse ". Failed to delete DNS record:" $dnsName;
+                  exit 1;
+                else
+                  cat response.txt; echo
+                  echo "Successfully deleted DNS record:" $dnsName;
+                fi
+            env:
+              CLOUDFLARE_API_TOKEN: $(cloudflare.api.token)
+              CLOUDFLARE_API_ENDPOINT: $(cloudflare.api.endpoint)
+              CLOUDFLARE_ZONE_ID: $(cloudflare.zone.id)
+
+          - task: Bash@3
+            displayName: "Delete *.secure DNS record"
+            inputs:
+              targetType: "inline"
+              script: |
+                set -e;
+                dnsName=cf-feat-$FEATURE_TAG.secure.comparethemarket.com.au;
+                cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID_PROD}"/dns_records?name="${dnsName}";
+                echo "cloudflareUrl is: " ${cloudflareUrl};
+                httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X GET -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN_PROD}"'' \
+                "${cloudflareUrl}")
+                
+                if [ $httpResponse != "200" ]; then
+                  cat response.txt; echo
+                  echo "Response status is: " $httpResponse ". Failed to retrieve DNS record:" $dnsName;
+                  exit 1;
+                else
+                  cat response.txt; echo
+                  resultCount=$(cat response.txt | jq -r '.result_info.count');
+                  if [[ $resultCount -eq "0" ]]; then
+                    echo "No DNS record found to delete";
+                    exit 0;
+                  fi
+                    dnsId=$(cat response.txt | jq -r '.result[0].id');
+                    echo $dnsId;
+                fi
+                
+                cloudflareUrl="${CLOUDFLARE_API_ENDPOINT}"/"${CLOUDFLARE_ZONE_ID_PROD}"/dns_records/"${dnsId}";
+                echo "cloudflareUrl is: " ${cloudflareUrl};
+                httpResponse=$(curl -s -o response.txt -w "%{http_code}" -X DELETE -H 'Authorization: Bearer '"${CLOUDFLARE_API_TOKEN_PROD}"'' \
+                "${cloudflareUrl}")
+                
+                if [ $httpResponse != "200" ]; then
+                  cat response.txt; echo
+                  echo "Response status is: " $httpResponse ". Failed to delete DNS record:" $dnsName;
+                  exit 1;
+                else
+                  cat response.txt; echo
+                  echo "Successfully deleted DNS record:" $dnsName;
+                fi
+            env:
+              CLOUDFLARE_API_TOKEN_PROD: $(cloudflare.api.token.prod)
+              CLOUDFLARE_API_ENDPOINT: $(cloudflare.api.endpoint)
+              CLOUDFLARE_ZONE_ID_PROD: $(cloudflare.zone.id.prod)
+

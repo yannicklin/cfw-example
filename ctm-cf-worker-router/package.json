@@ -1,0 +1,23 @@
+{
+  "name": "ctm-cf-worker-router",
+  "version": "0.0.0",
+  "dependencies": {
+    "ctm-cf-worker-router-core": "workspace:*",
+    "ip-cidr": "^4.0.2",
+    "itty-router": "^3.0.12"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241011.0",
+    "@types/chance": "^1.1.6",
+    "chance": "1.1.11",
+    "typescript": "^5.6.3",
+    "wrangler": "3.72.0"
+  },
+  "private": true,
+  "scripts": {
+    "build": "wrangler deploy --minify --dry-run --outdir ./out ",
+    "deploy": "wrangler deploy --minify --no-bundle ./out/index.js --env ",
+    "start": "wrangler dev",
+    "start-remote": "wrangler dev --remote"
+  }
+}
